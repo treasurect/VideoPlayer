@@ -91,4 +91,10 @@ public class ClickPlayActivity extends AppCompatActivity {
         PagerSnapHelper snapHelper = new PagerSnapHelper();
         snapHelper.attachToRecyclerView(recyclerView);
     }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        MediaHelper.release();
+    }
 }

@@ -29,7 +29,7 @@ public class AutoPlayActivity extends AppCompatActivity {
     private LinearLayoutManager layoutManager;
     private AutoListAdapter adapter;
     private int lastPlayVideoPos = -1;
-    private int playVideoPos = -1;
+    private int playVideoPos = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,7 +41,7 @@ public class AutoPlayActivity extends AppCompatActivity {
     }
 
     private void initViews() {
-        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_click_play);
         ButterKnife.bind(this);
     }
@@ -89,7 +89,7 @@ public class AutoPlayActivity extends AppCompatActivity {
                         playVideoPos = (firstVisibleItemPosition + lastVisibleItemPosition) / 2;
                     }
                     if (lastPlayVideoPos != playVideoPos) {
-                        if (onStartVideo != null){
+                        if (onStartVideo != null) {
                             onStartVideo.startVideo(playVideoPos);
                         }
                         lastPlayVideoPos = playVideoPos;
@@ -100,6 +100,7 @@ public class AutoPlayActivity extends AppCompatActivity {
         PagerSnapHelper snapHelper = new PagerSnapHelper();
         snapHelper.attachToRecyclerView(recyclerView);
     }
+
     public interface OnStartVideo {
         void startVideo(int pos);
     }
@@ -108,5 +109,27 @@ public class AutoPlayActivity extends AppCompatActivity {
 
     public void setOnStartVideo(OnStartVideo onStartVideo) {
         this.onStartVideo = onStartVideo;
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        recyclerView.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                if (videoItemList != null && videoItemList.get(playVideoPos) != null) {
+                    if (onStartVideo != null) {
+                        onStartVideo.startVideo(playVideoPos);
+                    }
+                    lastPlayVideoPos = playVideoPos;
+                }
+            }
+        },2000);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        MediaHelper.release();
     }
 }
